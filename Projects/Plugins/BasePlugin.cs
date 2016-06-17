@@ -9,7 +9,7 @@ namespace Crm.CommunitySupport.Plugins {
     public abstract partial class BasePlugin : IPlugin {
         #region Constructor(s)
         public BasePlugin(string unsecure = "", string secure = "") {
-            this._configuration = new PluginConfiguration(unsecure, secure);
+            _configuration = new PluginConfiguration(unsecure, secure);
         }
         #endregion
 
@@ -33,25 +33,17 @@ namespace Crm.CommunitySupport.Plugins {
             }
         }
 
-        /// Time the execution of an action
-        static TimeSpan TimeAction(Action action) {
-            DateTime start = DateTime.UtcNow;
-            action();
-            return DateTime.UtcNow.Subtract(start);
-        }
-
         private void ExecutePluginWithTracesOnEntryAndExit(PluginContext _) {
             TraceEntryPoint(_, this.PluginTypeName);
             TraceTrigger(_, this.Configuration);
 
-            TimeSpan duration = BasePlugin.TimeAction(() => {
+            TimeSpan duration = Metrics.TimeAction(() => {
                 ExecutePlugin(_);
             });
 
-            TraceExitPoint(_, this, this.PluginTypeName, duration);
+            TraceExitPointWithDuration(_, this.PluginTypeName, duration);
         }
-
-
+        
         /// <summary>
         /// Trace information about the SdkMessage that triggered the plugin
         /// </summary>
@@ -59,7 +51,7 @@ namespace Crm.CommunitySupport.Plugins {
         /// <param name="config"></param>
         private static void TraceTrigger(PluginContext _, PluginConfiguration config) {
             bool blnTraceMessageStack;
-            Boolean.TryParse(config.UnsecureDictionary["TraceMessageStack"], out blnTraceMessageStack);
+            bool.TryParse(config.UnsecureDictionary["TraceMessageStack"], out blnTraceMessageStack);
 
             if (blnTraceMessageStack) {
                 StringBuilder messageStack = new StringBuilder();
@@ -93,7 +85,7 @@ namespace Crm.CommunitySupport.Plugins {
                 _.XrmContext.InitiatingUserId.ToString());
         }
 
-        private static void TraceExitPoint(PluginContext _, BasePlugin basePlugin, string pluginTypeName, TimeSpan duration) {
+        private static void TraceExitPointWithDuration(PluginContext _, string pluginTypeName, TimeSpan duration) {
             _.Trace("Exiting {0}.Execute(), Correlation Id: {1}, Duration: {2:N2}ms.",
                 pluginTypeName,
                 _.XrmContext.CorrelationId.ToString(),
@@ -105,21 +97,22 @@ namespace Crm.CommunitySupport.Plugins {
 
         public PluginConfiguration Configuration {
             get {
-                if (this._configuration == null) {
+                if (_configuration == null) {
                     throw new InvalidPluginExecutionException(
                         "The plugin's Configuration was referenced, but the plugin did not call the base constructor in PluginBase." + Environment.NewLine +
                         "Example: public MyPlugin(string unsecure, string secure) : base(unsecure, secure) { }" + Environment.NewLine +
                         "Reference: https://msdn.microsoft.com/en-us/library/gg328263.aspx");
                 }
-                return this._configuration;
+                return _configuration;
             }
         }
         string PluginTypeName {
+            // implemented as a lazy string instead of readonly string to eliminate the need for derived classes to call the base constructor
             get {
-                if (this._pluginTypeName == null) {
-                    this._pluginTypeName = this.GetType().FullName;
+                if (_pluginTypeName == null) {
+                    _pluginTypeName = this.GetType().FullName;
                 }
-                return this._pluginTypeName;
+                return _pluginTypeName;
             }
         }
         readonly PluginConfiguration _configuration;

@@ -23,8 +23,8 @@ namespace Crm.CommunitySupport.Plugins {
         #region Constructor(s)
         public PluginContext(IServiceProvider serviceProvider) {
             // Set private members
-            this._tsTracingService = new TimestampedTracingService(serviceProvider);
-            this._organizationServiceFactory = serviceProvider.GetService<IOrganizationServiceFactory>();
+            _tsTracingService = new TimestampedTracingService(serviceProvider);
+            _organizationServiceFactory = serviceProvider.GetService<IOrganizationServiceFactory>();
 
             // Set public members
             this.XrmContext = serviceProvider.GetService<IPluginExecutionContext>();

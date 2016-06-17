@@ -33,7 +33,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>HFI.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Crm.CommunitySupport.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -58,15 +58,13 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Interfaces\IPluginContext.cs" />
     <Compile Include="BasePlugin.cs" />
-    <Compile Include="Plugins\NoOp.cs" />
+    <Compile Include="Metrics.cs" />
     <Compile Include="PluginConfiguration.cs" />
+    <Compile Include="Plugins\NoOp.cs" />
     <Compile Include="PluginContext.cs" />
     <Compile Include="Extensions\PluginExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimestampedTracingService.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="HFI.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Xrm.Sdk">
@@ -80,7 +78,10 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.XML" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Crm.CommunitySupport.snk" />
+    <None Include="README.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
