@@ -63,6 +63,9 @@
     <Compile Include="Plugins\NoOp.cs" />
     <Compile Include="PluginContext.cs" />
     <Compile Include="Extensions\PluginExtensions.cs" />
+    <Compile Include="Plugins\OptimizedUpdate.cs" />
+    <Compile Include="Plugins\TraceTargetFieldNames.cs" />
+    <Compile Include="Plugins\TraceTarget.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimestampedTracingService.cs" />
   </ItemGroup>
