@@ -4,6 +4,9 @@ using Microsoft.Xrm.Sdk;
 
 namespace Crm.CommunitySupport.Extensions {
     public static partial class XrmExtensions {
+        /// <summary>
+        /// Make a comparable, but not equatable copy of an Entity
+        /// </summary>
         public static Entity Clone(this Entity source) {
             Entity clone = new Entity(source.LogicalName, source.Id);
             clone.KeyAttributes = source.KeyAttributes.Clone();
@@ -13,6 +16,9 @@ namespace Crm.CommunitySupport.Extensions {
             return clone;
         }
 
+        /// <summary>
+        /// Make a comparable, but not equatable copy of a KeyAttributeCollection
+        /// </summary>
         public static KeyAttributeCollection Clone(this KeyAttributeCollection source) {
             KeyAttributeCollection clone = new KeyAttributeCollection();
 
@@ -79,17 +85,20 @@ namespace Crm.CommunitySupport.Extensions {
 
         /// <summary>
         /// Remove redundant attributes based on a PreEntityImage
+        /// Returns: The logical names of fields that were removed.
         /// </summary>
-        /// <param name="currentImage"></param>
-        /// <param name="previousImage"></param>
-        public static void ReduceToDelta(this Entity currentImage, Entity previousImage) {
+        public static IEnumerable<string> ReduceToDelta(this Entity currentImage, Entity previousImage) {
+            List<string> removedFields = new List<string>();
             // REMINDER: Don't modify the collection we are iterating over
             foreach (string attributeName in currentImage.Attributes.Keys) {
                 if (!IsAttributeNeededInTarget(currentImage, previousImage, attributeName)) {
                     currentImage.Attributes.Remove(attributeName);
+                    removedFields.Add(attributeName);
                 }
             }
+            return removedFields;
         }
+
         /// <summary>
         /// Compare one Entity to another, returning only new/changed attributes
         /// </summary>
