@@ -11,12 +11,13 @@ namespace Crm.CommunitySupport.Plugins {
     /// TimestampedTracingService usage:
     ///   ITracingService trc = new TimestampedTracingService(serviceProvider);
     /// </summary>
-    public partial class TimestampedTracingService : ITracingService, IDisposable {
+    public partial class TimestampedTracingService : ITracingService {
         #region Constructor(s)
         public TimestampedTracingService(IServiceProvider serviceProvider) {
             // Set private members
             _tracingService = serviceProvider.GetService<ITracingService>();
             _firstTraceTime = _previousTraceTime = DateTime.UtcNow;
+            Trace("TimestampedTracingService initialized.");
         }
         #endregion
 
@@ -27,48 +28,30 @@ namespace Crm.CommunitySupport.Plugins {
         /// <param name="format"></param>
         /// <param name="args"></param>
         public void Trace(string format, params object[] args) {
-            // Establish the timestamp as the entry to this method
             DateTime utcNow = DateTime.UtcNow;
 
-            // Trace the message, prefixed with the current time in UTC sortable format, with deltas
+            TraceMessageWithTimestampAndDeltas(utcNow, format, args);
+            SaveTimestamp(utcNow);
+        }
+        #endregion
+        
+        /// <summary>
+        /// Trace the message, prefixed with the current time in UTC sortable format, with deltas
+        /// </summary>
+        private void TraceMessageWithTimestampAndDeltas(DateTime now, string format, object[] args) {
             _tracingService.Trace(
                 string.Format(
                     "[{0:O} - @{1:N0}ms (+{2:N0}ms)] - {3}",
-                    utcNow,
-                    (utcNow - _firstTraceTime).TotalMilliseconds,
-                    (utcNow - _previousTraceTime).TotalMilliseconds,
+                    now,
+                    (now - _firstTraceTime).TotalMilliseconds,
+                    (now - _previousTraceTime).TotalMilliseconds,
                     string.Format(format, args)
                 ));
-
-            // Update the last timestamp
-            _previousTraceTime = utcNow;
-        }
-        #endregion
-        #region IDisposable Implementation
-        private bool disposedValue = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing) {
-            if (!disposedValue) {
-                if (disposing) {
-                    _tracingService = null;
-                    // TODO: dispose managed state (managed objects).
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
-            }
         }
 
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose() {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
+        private void SaveTimestamp(DateTime now) {
+            _previousTraceTime = now;
         }
-        #endregion
 
         // Base ITracingService
         private ITracingService _tracingService;
