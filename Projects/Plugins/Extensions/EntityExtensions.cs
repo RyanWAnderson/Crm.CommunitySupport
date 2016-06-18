@@ -9,7 +9,7 @@ namespace Crm.CommunitySupport.Extensions {
             clone.KeyAttributes = source.KeyAttributes.Clone();
             //clone.EntityState = EntityState.Unchanged;
             //clone.RowVersion = e.RowVersion;
-            clone.ApplyDelta(source);
+            clone.ApplyDelta(source.Attributes);
             return clone;
         }
 
@@ -58,8 +58,8 @@ namespace Crm.CommunitySupport.Extensions {
         /// <summary>
         /// Apply changes from a delta to an Entity
         /// </summary>
-        public static void ApplyDelta(this Entity entity, Entity patch) {
-            foreach (KeyValuePair<string, object> kvp in entity.Attributes) {
+        public static void ApplyDelta(this Entity entity, AttributeCollection patch) {
+            foreach (KeyValuePair<string, object> kvp in patch) {
                 object value = kvp.Value;
 
                 if (value is OptionSetValue) {
@@ -78,18 +78,25 @@ namespace Crm.CommunitySupport.Extensions {
         }
 
         /// <summary>
-        /// Compare one Entity to another, returning only new/changed attributes
+        /// Remove redundant attributes based on a PreEntityImage
         /// </summary>
-        public static Entity GetDeltaFrom(this Entity currentImage, Entity previousImage) {
-            Entity delta = currentImage.Clone();
-
+        /// <param name="currentImage"></param>
+        /// <param name="previousImage"></param>
+        public static void ReduceToDelta(this Entity currentImage, Entity previousImage) {
             // REMINDER: Don't modify the collection we are iterating over
             foreach (string attributeName in currentImage.Attributes.Keys) {
-                if (!IsAttributeNeededInTarget(delta, previousImage, attributeName)) {
-                    delta.Attributes.Remove(attributeName);
+                if (!IsAttributeNeededInTarget(currentImage, previousImage, attributeName)) {
+                    currentImage.Attributes.Remove(attributeName);
                 }
             }
-            return delta;
+        }
+        /// <summary>
+        /// Compare one Entity to another, returning only new/changed attributes
+        /// </summary>
+        public static AttributeCollection GetDeltaFrom(this Entity currentImage, Entity previousImage) {
+            Entity deltaEntity = currentImage.Clone();
+            deltaEntity.ReduceToDelta(previousImage);
+            return deltaEntity.Attributes;
         }
 
         /// <summary>

@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
+
 using Crm.CommunitySupport.Extensions;
 
 namespace Crm.CommunitySupport.Plugins {
@@ -55,7 +58,10 @@ namespace Crm.CommunitySupport.Plugins {
                 _defulatOrganizationService = value;
             }
         }
+
+        /// <summary>
         /// Lazyily-initialized OrganizationServiceContext based off DefaultOrganizationSerivce
+        /// </summary>
         public OrganizationServiceContext DefaultOrganizationServiceContext {
             get {
                 if (_defulatOrganizationServiceContext == null) {
@@ -68,7 +74,9 @@ namespace Crm.CommunitySupport.Plugins {
             }
         }
 
+        /// <summary>
         /// Get the Target of the execution context
+        /// </summary>
         public Entity Target {
             get {
                 return XrmContext.InputParameters.GetItemIfPresent("Target") as Entity;
@@ -94,26 +102,43 @@ namespace Crm.CommunitySupport.Plugins {
         /// <summary>
         ///  Get a clone of a PreImage
         /// </summary>
+        public Entity GetPreImage() {
+            EntityImageCollection preImages = XrmContext.PreEntityImages;
+            if (preImages.Count == 0) {
+                throw new InvalidPluginExecutionException("No PreEntityImages are registered. Register an image using the Plugin Registraiton tool.");
+            } else if (preImages.Count > 1) {
+                throw new InvalidPluginExecutionException("Multiple PreEntityImages are present. You must use the 'getPreImage(string)' method overload or unregister an image.");
+            }
+            return preImages[preImages.Keys.Single()];
+        }
         public Entity GetPreImage(string name) {
             return XrmContext.PreEntityImages.GetItemIfPresent(name)?.Clone();
         }
 
+        /// <summary>
         /// Get a strongly-typed clone of a PreImage
+        /// </summary>
         public TEntity GetPreImage<TEntity>(string name) where TEntity : Entity {
             return GetPreImage(name)?.ToEntity<TEntity>();
         }
 
+        /// <summary>
         /// Get a clone of a PostImage
+        /// </summary>
         public Entity GetPostImage(string name) {
             return XrmContext.PostEntityImages.GetItemIfPresent(name);
         }
 
+        /// <summary>
         /// Get a strongly-typed clone of a PostImage
+        /// </summary>
         public TEntity GetPostImage<TEntity>(string name) where TEntity : Entity {
             return GetPostImage(name)?.ToEntity<TEntity>();
         }
 
+        /// <summary>
         /// Trace a formatted message, per the implemented ITracingService
+        /// </summary>
         public void Trace(string format, params object[] args) {
             try {
                 _tracingService.Trace(format, args);
@@ -127,7 +152,7 @@ namespace Crm.CommunitySupport.Plugins {
             target = this.Target;
             preImage = this.GetPreImage(preImageName);
 
-            Entity delta = target.GetDeltaFrom(preImage);
+            AttributeCollection delta = target.GetDeltaFrom(preImage);
 
             if (preImage != null) {
                 result = preImage;
@@ -149,7 +174,7 @@ namespace Crm.CommunitySupport.Plugins {
             }
 
             if (target != null) {
-                result.ApplyDelta(target);
+                result.ApplyDelta(delta);
             }
 
             return result;

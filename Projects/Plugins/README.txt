@@ -14,6 +14,7 @@ Naming Conventions:
 Organization
 - Class
   - ctor(s)
+  - Interface support
   - Public Properties
   - Public Methods
   - Private methods
