@@ -112,7 +112,7 @@ namespace Crm.CommunitySupport.Plugins {
             return preImages[preImages.Keys.Single()];
         }
         public Entity GetPreImage(string name) {
-            return XrmContext.PreEntityImages.GetItemIfPresent(name)?.Clone();
+            return XrmContext.PreEntityImages.GetItemIfPresent(name)?.Copy();
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace Crm.CommunitySupport.Plugins {
             target = this.Target;
             preImage = this.GetPreImage(preImageName);
 
-            AttributeCollection delta = target.GetDeltaFrom(preImage);
+            Entity delta = target.GetDeltaFrom(preImage);
 
             if (preImage != null) {
                 result = preImage;

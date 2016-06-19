@@ -1,85 +1,99 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xrm.Sdk;
 
 namespace Crm.CommunitySupport.Extensions {
     public static partial class XrmExtensions {
         /// <summary>
-        /// Make a comparable, but not equatable copy of an Entity
+        /// Make a comparable, but not equatable copy of an Entity.
         /// </summary>
-        public static Entity Clone(this Entity source) {
-            Entity clone = new Entity(source.LogicalName, source.Id);
-            clone.KeyAttributes = source.KeyAttributes.Clone();
+        public static Entity Copy(this Entity sourceEntity) {
+            Entity copy = new Entity(sourceEntity.LogicalName, sourceEntity.Id);
+            copy.KeyAttributes = sourceEntity.KeyAttributes.Copy();
             //clone.EntityState = EntityState.Unchanged;
             //clone.RowVersion = e.RowVersion;
-            clone.ApplyDelta(source.Attributes);
-            return clone;
+            copy.Attributes = sourceEntity.Attributes.Copy();
+            return copy;
         }
 
         /// <summary>
-        /// Make a comparable, but not equatable copy of a KeyAttributeCollection
+        /// Make a comparable, but not equatable copy of a TDataCollection.
         /// </summary>
-        public static KeyAttributeCollection Clone(this KeyAttributeCollection source) {
-            KeyAttributeCollection clone = new KeyAttributeCollection();
+        public static TDataCollection Copy<TDataCollection>(this TDataCollection sourceDataCollection) where TDataCollection : DataCollection<string, object>, new() {
+            TDataCollection copy = new TDataCollection();
 
             // Copy any items in the collection
-            foreach (KeyValuePair<string, object> currentItem in source) {
-                object value = currentItem.Value;
+            foreach (KeyValuePair<string, object> attribute in sourceDataCollection) {
+                object attributeValue = attribute.Value;
 
-                if (value is OptionSetValue) {
-                    value = ((OptionSetValue)value).Clone();
-                } else if (value is Money) {
-                    value = ((Money)value).Clone();
-                } else if (value is EntityReference) {
-                    value = ((EntityReference)value).Clone();
+                if (attributeValue is OptionSetValue) {
+                    attributeValue = ((OptionSetValue)attributeValue).Copy();
+                } else if (attributeValue is Money) {
+                    attributeValue = ((Money)attributeValue).Copy();
+                } else if (attributeValue is EntityReference) {
+                    attributeValue = ((EntityReference)attributeValue).Copy();
                 }
 
-                clone[currentItem.Key] = value;
+                copy[attribute.Key] = attributeValue;
             }
 
-            return clone;
+            return copy;
         }
 
         /// <summary>
         /// Make a comparable, but not equatable copy of an OptionSetValue
         /// </summary>
-        public static OptionSetValue Clone(this OptionSetValue source) {
+        public static OptionSetValue Copy(this OptionSetValue source) {
             return new OptionSetValue(source.Value);
         }
 
         /// <summary>
         /// Make a comparable, but not equatable copy of a Money
         /// </summary>
-        public static Money Clone(this Money source) {
+        public static Money Copy(this Money source) {
             return new Money(source.Value);
         }
 
         /// <summary>
         /// Make a comparable, but not equatable copy of an EntityReference
         /// </summary>
-        public static EntityReference Clone(this EntityReference source) {
+        public static EntityReference Copy(this EntityReference source) {
             return new EntityReference(source.LogicalName, source.Id);
         }
 
+        public static bool IsReferenceTo(this EntityReference entityReference, Entity entity) {
+            return (string.Compare(entityReference.LogicalName, entity.LogicalName) == 0 && entityReference.Id.CompareTo(entity.Id) == 0);
+        }
         /// <summary>
         /// Apply changes from a delta to an Entity
         /// </summary>
-        public static void ApplyDelta(this Entity entity, AttributeCollection patch) {
-            foreach (KeyValuePair<string, object> kvp in patch) {
-                object value = kvp.Value;
+        public static void ApplyDelta(this Entity entity, Entity delta) {
+            if (delta == null)
+                return;
 
-                if (value is OptionSetValue) {
-                    value = ((OptionSetValue)value).Clone();
+            if (!delta.ToEntityReference().IsReferenceTo(entity)) {
+                throw new ArgumentException(string.Format(
+                    "Argument 'delta' referes to {0}, not {1}.",
+                    delta.ToEntityReference().ToTraceable(),
+                    entity.ToEntityReference().ToTraceable()));
+            }
 
-                } else if (kvp.Value is Money) {
-                    value = ((Money)value).Clone();
+            foreach (KeyValuePair<string, object> attribute in delta.Attributes) {
+                object attribueValue = attribute.Value;
 
-                } else if (kvp.Value is EntityReference) {
-                    value = ((EntityReference)value).Clone();
+                if (attribueValue is OptionSetValue) {
+                    attribueValue = ((OptionSetValue)attribueValue).Copy();
+
+                } else if (attribute.Value is Money) {
+                    attribueValue = ((Money)attribueValue).Copy();
+
+                } else if (attribute.Value is EntityReference) {
+                    attribueValue = ((EntityReference)attribueValue).Copy();
 
                 }
 
-                entity.Attributes[kvp.Key] = value;
+                entity.Attributes[attribute.Key] = attribueValue;
             }
         }
 
@@ -87,25 +101,37 @@ namespace Crm.CommunitySupport.Extensions {
         /// Remove redundant attributes based on a PreEntityImage
         /// Returns: The logical names of fields that were removed.
         /// </summary>
-        public static IEnumerable<string> ReduceToDelta(this Entity currentImage, Entity previousImage) {
+        public static IEnumerable<string> ReduceToDelta(this Entity currentImage, Entity previousImage, params string[] fieldsToPreserve) {
             List<string> removedFields = new List<string>();
-            // REMINDER: Don't modify the collection we are iterating over
-            foreach (string attributeName in currentImage.Attributes.Keys) {
+
+            if (previousImage == null)
+                return removedFields;
+
+            IEnumerable<string> fieldsToConsider;
+
+            fieldsToConsider = currentImage.Attributes.Keys;
+            if (fieldsToPreserve != null) {
+                fieldsToConsider = fieldsToConsider.Except(fieldsToPreserve);
+            }
+
+            foreach (string attributeName in fieldsToConsider) {
                 if (!IsAttributeNeededInTarget(currentImage, previousImage, attributeName)) {
                     currentImage.Attributes.Remove(attributeName);
                     removedFields.Add(attributeName);
                 }
             }
+
             return removedFields;
         }
 
         /// <summary>
-        /// Compare one Entity to another, returning only new/changed attributes
+        /// Compare one Entity to another, returning a copy of the Entity with only new/changed attributes
         /// </summary>
-        public static AttributeCollection GetDeltaFrom(this Entity currentImage, Entity previousImage) {
-            Entity deltaEntity = currentImage.Clone();
+        /// <remarks>Returns an Entity so that the result can be sent to IOrganizationService.Update()</remarks>
+        public static Entity GetDeltaFrom(this Entity currentImage, Entity previousImage) {
+            Entity deltaEntity = currentImage.Copy();
             deltaEntity.ReduceToDelta(previousImage);
-            return deltaEntity.Attributes;
+            return deltaEntity;
         }
 
         /// <summary>
