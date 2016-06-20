@@ -15,13 +15,13 @@ namespace Crm.CommunitySupport.Plugins {
         #endregion
 
         public override void ExecutePlugin(PluginExecutionContext _) {
-            Entity target = null, preImage = null;
+            Entity target = null;
+            Entity preImage = null;
 
-            ValidatePluginRegistration(_);
-
-            GetTarget(_, out target);
-            GetPreImage(_, out preImage);
-            ReduceTargetToDelta(_, target, preImage);
+            OptimizedUpdate.ValidatePluginRegistration(_);
+            OptimizedUpdate.GetTarget(_, out target);
+            OptimizedUpdate.GetPreImage(_, out preImage);
+            OptimizedUpdate.ReduceTargetToDelta(_, target, preImage);
         }
 
         #region Stateless plugin logic

@@ -13,8 +13,8 @@ namespace Crm.CommunitySupport.Plugins {
             this.Unsecure = unsecure;
             this.Secure = secure;
 
-            this.UnsecureDictionary = parseStringIntoDict(unsecure);
-            this.SecureDictionary = parseStringIntoDict(secure);
+            this.UnsecureDictionary = PluginConfiguration.parseStringIntoDict(unsecure);
+            this.SecureDictionary = PluginConfiguration.parseStringIntoDict(secure);
         }
         #endregion
 

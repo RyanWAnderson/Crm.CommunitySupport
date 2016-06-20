@@ -1,4 +1,4 @@
-﻿Style:
+﻿Style: https://msdn.microsoft.com/en-us/library/ff926074.aspx
 
 Naming Conventions:
 - Camel-casing
