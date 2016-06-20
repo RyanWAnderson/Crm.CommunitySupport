@@ -33,13 +33,12 @@ namespace Crm.CommunitySupport.Plugins {
             _pluginExecutionContext = serviceProvider.GetService<IPluginExecutionContext>();
             _tracingService = new TimestampedTracingService(serviceProvider, OperationCreatedOn);
             _organizationServiceFactory = serviceProvider.GetService<IOrganizationServiceFactory>();
-            _defaultOrganizationService = serviceProvider.GetService<IOrganizationService>();
         }
         #endregion
 
         #region Interface support
         #region IPluginExecutionContext 
-        private IPluginExecutionContext _pluginExecutionContext;
+        private readonly IPluginExecutionContext _pluginExecutionContext;
 
         public PluginStage Stage {
             get {
@@ -214,7 +213,7 @@ namespace Crm.CommunitySupport.Plugins {
         }
         #endregion
         #region ITracingService 
-        private ITracingService _tracingService;
+        private readonly ITracingService _tracingService;
         /// <summary>
         /// Trace a formatted message, per the implemented ITracingService
         /// </summary>
