@@ -1,18 +1,17 @@
 ﻿using Crm.CommunitySupport.Extensions;
 
+using Microsoft.Xrm.Sdk;
+
 namespace Crm.CommunitySupport.Plugins {
     /// <summary>
     /// A plugin that does nothing in the plugin's body.
     /// </summary>
-    public class TraceTarget : BasePlugin {
-        public override void ExecutePlugin(PluginContext _) {
-            var target = _.Target;
-            if (target == null) {
-                _.Trace("Target: (null)");
-                return;
-            }
+    public class TraceTarget : Plugin {
+        public override void ExecutePlugin(PluginExecutionContext _) {
+            var target = _.GetTarget<Entity>();
 
-            _.Trace("Target: {0}", target.ToTraceable());
+            _.Trace("Target: ",
+                (target == null ? "(null)" : target.ToTraceable()));
         }
     }
 }

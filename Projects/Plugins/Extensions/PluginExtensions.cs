@@ -15,12 +15,16 @@ namespace Crm.CommunitySupport.Extensions {
             return (TService)service.GetService(typeof(TService));
         }
 
-        /// <summary>
-        /// Retrieve an item from a DataCollection if the key is present, else default(<TValue>).
-        /// </summary>
-        public static TValue GetItemIfPresent<TValue>(this DataCollection<string, TValue> coll, string key) {
-            // Handle missing keys more gracefully
-            return (TValue)(coll.ContainsKey(key) ? coll[key] : default(TValue));
+        /// Get an EntityImage based on imageName. If no imageName is provided, assume that there is exactly 1 image registered.
+        public static TEntity GetImage<TEntity>(this EntityImageCollection images, string imageName = "") where TEntity: Entity{
+            if (string.IsNullOrEmpty(imageName)) {
+                imageName = images.Keys.Single();
+            }
+
+            Entity image;
+            images.TryGetValue(imageName, out image);
+
+            return image?.ToEntity<TEntity>();
         }
 
         /// <summary>
@@ -122,7 +126,7 @@ namespace Crm.CommunitySupport.Extensions {
         public static string ToTraceableMessage(this IPluginExecutionContext context) {
             return string.Format(
                 "{0} {1} of {2}{3}.{4}{5}",
-                (PluginMode)context.Mode,
+                (ExecutionMode)context.Mode,
                 (PluginStage)context.Stage,
                 string.IsNullOrEmpty(context.PrimaryEntityName)
                     ? "<global>"

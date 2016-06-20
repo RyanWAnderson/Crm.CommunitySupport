@@ -2,8 +2,8 @@
     /// <summary>
     /// A plugin that does nothing in the plugin's body.
     /// </summary>
-    public class NoOp : BasePlugin {
-        public override void ExecutePlugin(PluginContext _) {
+    public class NoOp : Plugin {
+        public override void ExecutePlugin(PluginExecutionContext _) {
         }
     }
 }

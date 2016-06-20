@@ -54,14 +54,13 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Extensions\EntityExtensions.cs" />
+    <Compile Include="Extensions\XrmExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Interfaces\IPluginContext.cs" />
-    <Compile Include="BasePlugin.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="Metrics.cs" />
     <Compile Include="PluginConfiguration.cs" />
     <Compile Include="Plugins\NoOp.cs" />
-    <Compile Include="PluginContext.cs" />
+    <Compile Include="PluginExecutionContext.cs" />
     <Compile Include="Extensions\PluginExtensions.cs" />
     <Compile Include="Plugins\OptimizedUpdate.cs" />
     <Compile Include="Plugins\TraceTargetFieldNames.cs" />
@@ -70,6 +69,9 @@
     <Compile Include="TimestampedTracingService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Crm.Sdk.Proxy">
+      <HintPath>D:\Programming\CRM810SDK\Bin\Microsoft.Crm.Sdk.Proxy.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xrm.Sdk">
       <HintPath>D:\Programming\CRM2016SDK\Bin\Microsoft.Xrm.Sdk.dll</HintPath>
     </Reference>

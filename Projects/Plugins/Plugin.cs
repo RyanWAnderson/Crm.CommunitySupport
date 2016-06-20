@@ -6,19 +6,22 @@ using Crm.CommunitySupport.Extensions;
 
 namespace Crm.CommunitySupport.Plugins {
 
-    public abstract partial class BasePlugin : IPlugin {
+    public abstract partial class Plugin : IPlugin {
         #region Constructor(s)
-        public BasePlugin(string unsecure = "", string secure = "") {
+        public Plugin(string unsecure = "", string secure = "") {
             _configuration = new PluginConfiguration(unsecure, secure);
         }
         #endregion
 
-        #region IPlugin Implementation
+        #region IPlugin support
         void IPlugin.Execute(IServiceProvider serviceProvider) {
-            PluginContext _ = new PluginContext(serviceProvider);
+            PluginExecutionContext _ = new PluginExecutionContext(serviceProvider);
 
             try {
                 this.ExecutePluginWithTracesOnEntryAndExit(_);
+            }
+            catch (InvalidPluginExecutionException) {
+                throw;
             }
             catch (Exception ex) {
                 _.Trace("!! Exception caught, plugin aborting.");
@@ -33,7 +36,7 @@ namespace Crm.CommunitySupport.Plugins {
             }
         }
 
-        private void ExecutePluginWithTracesOnEntryAndExit(PluginContext _) {
+        private void ExecutePluginWithTracesOnEntryAndExit(PluginExecutionContext _) {
             TraceEntryPoint(_, this.PluginTypeName);
             TraceTrigger(_, this.Configuration);
 
@@ -49,14 +52,14 @@ namespace Crm.CommunitySupport.Plugins {
         /// </summary>
         /// <param name="_"></param>
         /// <param name="config"></param>
-        private static void TraceTrigger(PluginContext _, PluginConfiguration config) {
+        private static void TraceTrigger(PluginExecutionContext _, PluginConfiguration config) {
             bool blnTraceMessageStack;
             bool.TryParse(config.UnsecureDictionary["TraceMessageStack"], out blnTraceMessageStack);
 
             if (blnTraceMessageStack) {
                 StringBuilder messageStack = new StringBuilder();
 
-                IPluginExecutionContext adam = _.XrmContext;
+                IPluginExecutionContext adam = _;
                 do {
                     messageStack.AppendLine(adam.ToTraceableMessage());
                     adam = adam.ParentContext;
@@ -71,30 +74,31 @@ namespace Crm.CommunitySupport.Plugins {
             } else {
                 _.Trace(
                     "Plugin triggered by {0}",
-                    _.XrmContext.ToTraceableMessage());
+                    _.ToTraceableMessage());
             }
 
         }
 
-        private static void TraceEntryPoint(PluginContext _, string pluginTypeName) {
+        private static void TraceEntryPoint(PluginExecutionContext _, string pluginTypeName) {
             _.Trace("Entering {0}.Execute(), Depth: {1}, Request Id: {2}, Correlation Id: {3}, Running as: {4}.",
                 pluginTypeName,
-                _.XrmContext.Depth.ToString(),
-                _.XrmContext.RequestId.ToString(),
-                _.XrmContext.CorrelationId.ToString(),
-                _.XrmContext.InitiatingUserId.ToString());
+                _.Depth.ToString(),
+                _.RequestId.ToString(),
+                _.CorrelationId.ToString(),
+                _.InitiatingUserId.ToString());
         }
 
-        private static void TraceExitPointWithDuration(PluginContext _, string pluginTypeName, TimeSpan duration) {
+        private static void TraceExitPointWithDuration(PluginExecutionContext _, string pluginTypeName, TimeSpan duration) {
             _.Trace("Exiting {0}.Execute(), Correlation Id: {1}, Duration: {2:N2}ms.",
                 pluginTypeName,
-                _.XrmContext.CorrelationId.ToString(),
+                _.CorrelationId.ToString(),
                 duration.TotalMilliseconds);
         }
         #endregion
 
-        public abstract void ExecutePlugin(PluginContext _);
+        public abstract void ExecutePlugin(PluginExecutionContext _);
 
+        readonly PluginConfiguration _configuration;
         public PluginConfiguration Configuration {
             get {
                 if (_configuration == null) {
@@ -106,6 +110,8 @@ namespace Crm.CommunitySupport.Plugins {
                 return _configuration;
             }
         }
+
+        string _pluginTypeName;
         string PluginTypeName {
             // implemented as a lazy string instead of readonly string to eliminate the need for derived classes to call the base constructor
             get {
@@ -115,7 +121,5 @@ namespace Crm.CommunitySupport.Plugins {
                 return _pluginTypeName;
             }
         }
-        readonly PluginConfiguration _configuration;
-        string _pluginTypeName;
     }
 }

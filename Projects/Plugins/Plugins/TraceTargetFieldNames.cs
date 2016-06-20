@@ -8,9 +8,9 @@ namespace Crm.CommunitySupport.Plugins {
     /// <summary>
     /// A plugin that does nothing in the plugin's body.
     /// </summary>
-    public class TraceTargetFieldNames : BasePlugin {
-        public override void ExecutePlugin(PluginContext _) {
-            Entity target = _.Target;
+    public class TraceTargetFieldNames : Plugin {
+        public override void ExecutePlugin(PluginExecutionContext _) {
+            Entity target = _.GetTarget<Entity>();
 
             _.Trace("Updating {0}. Modified fields: {1}.",
                 target.ToEntityReference().ToTraceable(),

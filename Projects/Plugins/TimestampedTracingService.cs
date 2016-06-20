@@ -13,15 +13,20 @@ namespace Crm.CommunitySupport.Plugins {
     /// </summary>
     public partial class TimestampedTracingService : ITracingService {
         #region Constructor(s)
-        public TimestampedTracingService(IServiceProvider serviceProvider) {
+        public TimestampedTracingService(IServiceProvider serviceProvider, DateTime? initialTimestamp = null) {
+            // Ensure the inititalTimestamp is not in the future (since servers may not be in sync)
+            DateTime utcNow = DateTime.UtcNow;
+            
+            initialTimestamp = (initialTimestamp.HasValue && initialTimestamp < utcNow) ? initialTimestamp.Value : utcNow;
+
             // Set private members
             _tracingService = serviceProvider.GetService<ITracingService>();
-            _firstTraceTime = _previousTraceTime = DateTime.UtcNow;
+            _firstTraceTime = _previousTraceTime = (initialTimestamp.HasValue ? initialTimestamp.Value : DateTime.UtcNow);
             Trace("TimestampedTracingService initialized.");
         }
         #endregion
 
-        #region ITracingService Implementation
+        #region ITracingService support
         /// <summary>
         /// Trace a message prefixed with UTC timestamp, execution time and delta
         /// </summary>
@@ -34,7 +39,7 @@ namespace Crm.CommunitySupport.Plugins {
             SaveTimestamp(utcNow);
         }
         #endregion
-        
+
         /// <summary>
         /// Trace the message, prefixed with the current time in UTC sortable format, with deltas
         /// </summary>

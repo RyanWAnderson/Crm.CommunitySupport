@@ -107,9 +107,8 @@ namespace Crm.CommunitySupport.Extensions {
             if (previousImage == null)
                 return removedFields;
 
-            IEnumerable<string> fieldsToConsider;
+            IEnumerable<string> fieldsToConsider = currentImage.Attributes.Keys;
 
-            fieldsToConsider = currentImage.Attributes.Keys;
             if (fieldsToPreserve != null) {
                 fieldsToConsider = fieldsToConsider.Except(fieldsToPreserve);
             }
