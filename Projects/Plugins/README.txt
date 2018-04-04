@@ -8,14 +8,12 @@ Naming Conventions:
   - 'this.' for members
   - 'ClassName.' for static
   - Note: This is to clearly indicate that methods used in plugins are stateless
-- Invocation of member methods are prefixed with 'this.'
-- Invocation of static methods are class-qualified
 
 Organization
 - Class
   - ctor(s)
   - Interface support
-  - Public Properties
-  - Public Methods
+  - Public properties
+  - Public methods
   - Private methods
   - Private variables
