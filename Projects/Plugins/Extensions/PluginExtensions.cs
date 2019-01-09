@@ -1,28 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Crm.CommunitySupport.Plugins;
+using Microsoft.Xrm.Sdk;
+using System;
 using System.Linq;
 using System.Text;
-using Microsoft.Xrm.Sdk;
-using Crm.CommunitySupport.Plugins;
 
-namespace Crm.CommunitySupport.Extensions {
+namespace Crm.CommunitySupport.Extensions
+{
     /// Extension methods that are useful in plugin development
-    public static partial class PluginExtensions {
+    public static partial class PluginExtensions
+    {
         /// <summary>
         /// Generic method to beautify the use of GetService()
         /// </summary>
-        public static TService GetService<TService>(this IServiceProvider service) where TService : class {
+        public static TService GetService<TService>(this IServiceProvider service) where TService : class
+        {
             return (TService)service.GetService(typeof(TService));
         }
 
         /// Get an EntityImage based on imageName. If no imageName is provided, assume that there is exactly 1 image registered.
-        public static TEntity GetImage<TEntity>(this EntityImageCollection images, string imageName = "") where TEntity: Entity{
-            if (string.IsNullOrEmpty(imageName)) {
+        public static TEntity GetImage<TEntity>(this EntityImageCollection images, string imageName = "") where TEntity : Entity
+        {
+            if (string.IsNullOrEmpty(imageName))
+            {
                 imageName = images.Keys.Single();
             }
 
-            Entity image;
-            images.TryGetValue(imageName, out image);
+            images.TryGetValue(imageName, out var image);
 
             return image?.ToEntity<TEntity>();
         }
@@ -30,10 +33,14 @@ namespace Crm.CommunitySupport.Extensions {
         /// <summary>
         /// Get a traceable string representation of an EntityReference 
         /// </summary>
-        public static string ToTraceable(this EntityReference entityReference) {
-            if (entityReference == null) {
+        public static string ToTraceable(this EntityReference entityReference)
+        {
+            if (entityReference == null)
+            {
                 return "(EntityReference)null";
-            } else {
+            }
+            else
+            {
                 return string.Format("(EntityReference){0}({1})", entityReference.LogicalName, entityReference.Id.ToString());
             }
         }
@@ -41,44 +48,63 @@ namespace Crm.CommunitySupport.Extensions {
         /// <summary>
         /// Get a traceable string representation of an OptionSetValue 
         /// </summary>
-        public static string ToTraceable(this OptionSetValue optionSetValue) {
+        public static string ToTraceable(this OptionSetValue optionSetValue)
+        {
             return string.Format("(OptionSetValue){0}", optionSetValue == null ? "null" : optionSetValue.Value.ToString());
         }
 
         /// <summary>
         /// Get a traceable string representation of a Money 
         /// </summary>
-        public static string ToTraceable(this Money money) {
+        public static string ToTraceable(this Money money)
+        {
             return string.Format("(Money){0}", money == null ? "null" : money.Value.ToString());
         }
 
         /// <summary>
         /// Get a deep, traceable string representation of an Entity
         /// </summary>
-        public static string ToTraceable(this Entity entity) {
-            if (entity == null) {
+        public static string ToTraceable(this Entity entity)
+        {
+            if (entity == null)
+            {
                 return "(Entity) null";
-            } else {
-                StringBuilder sb = new StringBuilder();
+            }
+            else
+            {
+                var sb = new StringBuilder();
                 sb.AppendFormat("(Entity<{0}>)", entity.LogicalName).AppendLine();
 
-                if (entity.Attributes.Any()) {
-                    foreach (string attributeName in entity.Attributes.Keys) {
-                        object attributeValue = entity[attributeName];
+                if (entity.Attributes.Any())
+                {
+                    foreach (var attributeName in entity.Attributes.Keys)
+                    {
+                        var attributeValue = entity[attributeName];
                         string typeAndValue;
 
-                        try {
-                            if (attributeValue == null) {
+                        try
+                        {
+                            if (attributeValue == null)
+                            {
                                 typeAndValue = string.Format("(null)");
-                            } else {
+                            }
+                            else
+                            {
 
-                                if (attributeValue is OptionSetValue) {
+                                if (attributeValue is OptionSetValue)
+                                {
                                     typeAndValue = ((OptionSetValue)attributeValue).ToTraceable();
-                                } else if (attributeValue is Money) {
+                                }
+                                else if (attributeValue is Money)
+                                {
                                     typeAndValue = ((Money)attributeValue).ToTraceable();
-                                } else if (attributeValue is EntityReference) {
+                                }
+                                else if (attributeValue is EntityReference)
+                                {
                                     typeAndValue = ((EntityReference)attributeValue).ToTraceable();
-                                } else {
+                                }
+                                else
+                                {
                                     typeAndValue = string.Format(
                                         "({0}){1}",
                                         attributeValue.GetType().FullName,
@@ -87,7 +113,8 @@ namespace Crm.CommunitySupport.Extensions {
                             }
 
                         }
-                        catch (Exception ex) {
+                        catch (Exception ex)
+                        {
                             typeAndValue = "<Error serializing>" + ex.Message;
                         }
 
@@ -103,12 +130,14 @@ namespace Crm.CommunitySupport.Extensions {
         /// <summary>
         /// Get a traceable string representation of a DataCollection
         /// </summary>
-        public static string ToTraceable<TKey, TValue>(this DataCollection<TKey, TValue> collection) {
-            StringBuilder sb = new StringBuilder();
+        public static string ToTraceable<TKey, TValue>(this DataCollection<TKey, TValue> collection)
+        {
+            var sb = new StringBuilder();
 
             sb.AppendFormat("(DataCollection<{0},{1}>)", typeof(TKey).FullName, typeof(TValue).FullName).AppendLine();
 
-            foreach (KeyValuePair<TKey, TValue> kvp in collection) {
+            foreach (var kvp in collection)
+            {
                 sb.AppendFormat(
                     "{0}: ({1}) {2},",
                     kvp.Key,
@@ -123,7 +152,8 @@ namespace Crm.CommunitySupport.Extensions {
         /// <summary>
         /// Get a traceable string representation of the SdkMessage info that triggered the plugin
         /// </summary>
-        public static string ToTraceableMessage(this IPluginExecutionContext context) {
+        public static string ToTraceableMessage(this IPluginExecutionContext context)
+        {
             return string.Format(
                 "{0} {1} of {2}{3}.{4}{5}",
                 (ExecutionMode)context.Mode,

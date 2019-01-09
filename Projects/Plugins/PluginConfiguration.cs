@@ -3,34 +3,43 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
-namespace Crm.CommunitySupport.Plugins {
+namespace Crm.CommunitySupport.Plugins
+{
     /// <summary>
     /// Class to add Dictionary (Key:Value) parsing to plugin configuration
     /// </summary>
-    public class PluginConfiguration {
+    public class PluginConfiguration
+    {
         #region Constructor(s)
-        public PluginConfiguration(string unsecure, string secure) {
-            this.Unsecure = unsecure;
-            this.Secure = secure;
+        public PluginConfiguration(string unsecure, string secure)
+        {
+            Unsecure = unsecure;
+            Secure = secure;
 
-            this.UnsecureDictionary = PluginConfiguration.parseStringIntoDict(unsecure);
-            this.SecureDictionary = PluginConfiguration.parseStringIntoDict(secure);
+            UnsecureDictionary = PluginConfiguration.parseStringIntoDict(unsecure);
+            SecureDictionary = PluginConfiguration.parseStringIntoDict(secure);
         }
         #endregion
 
-        private static IReadOnlyDictionary<string, string> parseStringIntoDict(string s) {
-            StringDictionary dict = new StringDictionary();
+        private static IReadOnlyDictionary<string, string> parseStringIntoDict(string s)
+        {
+            var dict = new StringDictionary();
 
-            try /*weakly*/ {
-                foreach (string line in Regex.Split(s, Environment.NewLine)) {
+            try /*weakly*/
+            {
+                foreach (var line in Regex.Split(s, Environment.NewLine))
+                {
                     if (string.IsNullOrWhiteSpace(line) || !line.Contains(":"))
+                    {
                         continue;
+                    }
 
-                    string[] parts = line.Split(new char[] { ':' }, 2);
+                    var parts = line.Split(new char[] { ':' }, 2);
                     dict.Add(parts[0], parts[1]);
                 }
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 // swallow ex
             }
 

@@ -1,8 +1,11 @@
 ﻿using System;
 
-namespace Crm.CommunitySupport {
-    class Metrics {
-        public static TimeSpan TimeAction(Action action) {
+namespace Crm.CommunitySupport
+{
+    internal class Metrics
+    {
+        public static TimeSpan TimeAction(Action action)
+        {
             var watch = new System.Diagnostics.Stopwatch();
             watch.Start();
             action();
