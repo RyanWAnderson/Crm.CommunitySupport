@@ -61,13 +61,13 @@ namespace Microsoft.Crm.Sdk.Samples
         {
             var utcNow = DateTime.UtcNow;
 
-            _tracingService.Trace(
-                "[{0:O} - @{1:N0}ms (+{2:N0}ms)] - {3}",
-                utcNow,
-                (utcNow - _firstTraceTime).TotalMilliseconds,
-                (utcNow - _previousTraceTime).TotalMilliseconds,
-                string.Format(format, args)
-            );
+            // The duration since the operation started.
+            var relativeMilliseconds = utcNow.Subtract(_firstTraceTime).TotalMilliseconds;
+            
+            // The duration since the last trace.
+            var deltaMilliseconds = utcNow.Subtract(_previousTraceTime).TotalMilliseconds;
+
+            _tracingService.Trace($"[{utcNow:O} - @{relativeMilliseconds:N0}ms (+{deltaMilliseconds:N0}ms)] - {string.Format(format, args)}");
 
             _previousTraceTime = utcNow;
         }

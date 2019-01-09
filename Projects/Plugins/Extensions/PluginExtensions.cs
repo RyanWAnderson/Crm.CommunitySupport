@@ -75,49 +75,46 @@ namespace Crm.CommunitySupport.Extensions
                 var sb = new StringBuilder();
                 sb.AppendLine($"(Entity<{entity.LogicalName}>)");
 
-                if (entity.Attributes.Any())
+                foreach (var attributeName in entity.Attributes.Keys)
                 {
-                    foreach (var attributeName in entity.Attributes.Keys)
+                    var attributeValue = entity[attributeName];
+                    string typeAndValue;
+
+                    try
                     {
-                        var attributeValue = entity[attributeName];
-                        string typeAndValue;
-
-                        try
+                        if (attributeValue == null)
                         {
-                            if (attributeValue == null)
-                            {
-                                typeAndValue = "(null)";
-                            }
-                            else
-                            {
-                                switch (attributeValue)
-                                {
-                                    case OptionSetValue optionSetValue:
-                                        typeAndValue = optionSetValue.ToTraceable();
-                                        break;
-
-                                    case Money moneyValue:
-                                        typeAndValue = moneyValue.ToTraceable();
-                                        break;
-
-                                    case EntityReference entityReference:
-                                        typeAndValue = entityReference.ToTraceable();
-                                        break;
-
-                                    default:
-                                        typeAndValue = $"({attributeValue.GetType().FullName}){attributeValue}";
-                                        break;
-                                }
-                            }
-
+                            typeAndValue = "(null)";
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            typeAndValue = "<Error serializing>" + ex.Message;
+                            switch (attributeValue)
+                            {
+                                case OptionSetValue optionSetValue:
+                                    typeAndValue = optionSetValue.ToTraceable();
+                                    break;
+
+                                case Money moneyValue:
+                                    typeAndValue = moneyValue.ToTraceable();
+                                    break;
+
+                                case EntityReference entityReference:
+                                    typeAndValue = entityReference.ToTraceable();
+                                    break;
+
+                                default:
+                                    typeAndValue = $"({attributeValue.GetType().FullName}){attributeValue}";
+                                    break;
+                            }
                         }
 
-                        sb.AppendLine($"{attributeName}: {typeAndValue}");
                     }
+                    catch (Exception ex)
+                    {
+                        typeAndValue = "<Error serializing>" + ex.Message;
+                    }
+
+                    sb.AppendLine($"{attributeName}: {typeAndValue}");
                 }
 
                 return sb.ToString();
