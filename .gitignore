@@ -6,3 +6,5 @@
 *.user
 /Projects/Plugins/bin
 /Projects/Plugins/obj
+/packages
+/.vs
