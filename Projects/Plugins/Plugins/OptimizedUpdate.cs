@@ -4,8 +4,8 @@ using Microsoft.Xrm.Sdk;
 namespace Crm.CommunitySupport.Plugins
 {
     /// <summary>
-    /// A plugin that reduces the Target InputParameter to the delta, based on values present in the PreEntityImage
-    /// Note: This can have unintended side effects if you are intentionally triggering plugins be setting a field to its current value and updating
+    /// A plugin that reduces the Target InputParameter to the delta, based on values present in the PreEntityImage.
+    /// Note: This can have unintended side effects if you are intentionally updating a field to its current value to trigger other SdkMessageProcessingSteps.
     /// </summary>
     public class OptimizedUpdate : Plugin
     {
