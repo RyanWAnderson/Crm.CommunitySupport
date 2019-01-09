@@ -33,11 +33,7 @@ namespace Crm.CommunitySupport.Plugins
                 _.Trace("!! Exception caught, plugin aborting.");
 
                 throw new InvalidPluginExecutionException(
-                    string.Format(
-                        "Plugin '{0}' failed to execute, returning the error: {1}",
-                        PluginTypeName,
-                        ex.Message
-                    ),
+                    $"Plugin '{PluginTypeName}' failed to execute, returning the error: {ex.Message}",
                     ex);
             }
         }

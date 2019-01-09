@@ -94,7 +94,7 @@ namespace Crm.CommunitySupport.Extensions
             if (!delta.ToEntityReference().IsReferenceTo(entity))
             {
                 throw new ArgumentException(string.Format(
-                    "Argument 'delta' referes to {0}, not {1}.",
+                    "Argument 'delta' refers to {0}, not {1}.",
                     delta.ToEntityReference().ToTraceable(),
                     entity.ToEntityReference().ToTraceable()));
             }

@@ -41,7 +41,7 @@ namespace Crm.CommunitySupport.Extensions
             }
             else
             {
-                return string.Format("(EntityReference){0}({1})", entityReference.LogicalName, entityReference.Id.ToString());
+                return $"(EntityReference){entityReference.LogicalName}({entityReference.Id})";
             }
         }
 
@@ -50,7 +50,7 @@ namespace Crm.CommunitySupport.Extensions
         /// </summary>
         public static string ToTraceable(this OptionSetValue optionSetValue)
         {
-            return string.Format("(OptionSetValue){0}", optionSetValue == null ? "null" : optionSetValue.Value.ToString());
+            return $"(OptionSetValue){ optionSetValue?.Value.ToString() ?? "null"}";
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Crm.CommunitySupport.Extensions
         /// </summary>
         public static string ToTraceable(this Money money)
         {
-            return string.Format("(Money){0}", money == null ? "null" : money.Value.ToString());
+            return $"(Money){ money.Value.ToString() ?? "null"}";
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Crm.CommunitySupport.Extensions
             else
             {
                 var sb = new StringBuilder();
-                sb.AppendFormat("(Entity<{0}>)", entity.LogicalName).AppendLine();
+                sb.AppendLine($"(Entity<{entity.LogicalName}>)");
 
                 if (entity.Attributes.Any())
                 {
@@ -86,29 +86,27 @@ namespace Crm.CommunitySupport.Extensions
                         {
                             if (attributeValue == null)
                             {
-                                typeAndValue = string.Format("(null)");
+                                typeAndValue = "(null)";
                             }
                             else
                             {
+                                switch (attributeValue)
+                                {
+                                    case OptionSetValue optionSetValue:
+                                        typeAndValue = optionSetValue.ToTraceable();
+                                        break;
 
-                                if (attributeValue is OptionSetValue)
-                                {
-                                    typeAndValue = ((OptionSetValue)attributeValue).ToTraceable();
-                                }
-                                else if (attributeValue is Money)
-                                {
-                                    typeAndValue = ((Money)attributeValue).ToTraceable();
-                                }
-                                else if (attributeValue is EntityReference)
-                                {
-                                    typeAndValue = ((EntityReference)attributeValue).ToTraceable();
-                                }
-                                else
-                                {
-                                    typeAndValue = string.Format(
-                                        "({0}){1}",
-                                        attributeValue.GetType().FullName,
-                                        attributeValue);
+                                    case Money moneyValue:
+                                        typeAndValue = moneyValue.ToTraceable();
+                                        break;
+
+                                    case EntityReference entityReference:
+                                        typeAndValue = entityReference.ToTraceable();
+                                        break;
+
+                                    default:
+                                        typeAndValue = $"({attributeValue.GetType().FullName}){attributeValue}";
+                                        break;
                                 }
                             }
 
@@ -118,8 +116,7 @@ namespace Crm.CommunitySupport.Extensions
                             typeAndValue = "<Error serializing>" + ex.Message;
                         }
 
-                        sb.AppendFormat("{0}: {1}", attributeName, typeAndValue).AppendLine();
-
+                        sb.AppendLine($"{attributeName}: {typeAndValue}");
                     }
                 }
 
@@ -134,16 +131,14 @@ namespace Crm.CommunitySupport.Extensions
         {
             var sb = new StringBuilder();
 
-            sb.AppendFormat("(DataCollection<{0},{1}>)", typeof(TKey).FullName, typeof(TValue).FullName).AppendLine();
+            sb.AppendLine($"(DataCollection<{typeof(TKey).FullName},{typeof(TValue).FullName}>)");
 
             foreach (var kvp in collection)
             {
-                sb.AppendFormat(
-                    "{0}: ({1}) {2},",
-                    kvp.Key,
-                    kvp.Value.GetType().FullName,
-                    kvp.Value.ToString().IndentNewLines()
-                    ).AppendLine();
+                var keyName = kvp.Key;
+                var valueTypeName = kvp.Value.GetType().FullName;
+                var formattedValue = kvp.Value.ToString().IndentNewLines();
+                sb.AppendLine($"{keyName}: ({valueTypeName}) {formattedValue},");
             }
 
             return sb.ToString();
@@ -154,21 +149,13 @@ namespace Crm.CommunitySupport.Extensions
         /// </summary>
         public static string ToTraceableMessage(this IPluginExecutionContext context)
         {
-            return string.Format(
-                "{0} {1} of {2}{3}.{4}{5}",
-                (ExecutionMode)context.Mode,
-                (PluginStage)context.Stage,
-                string.IsNullOrEmpty(context.PrimaryEntityName)
-                    ? "<global>"
-                    : context.PrimaryEntityName,
-                context.PrimaryEntityId == null || context.PrimaryEntityId == Guid.Empty
-                    ? string.Empty
-                    : string.Format("({0})", context.PrimaryEntityId),
-                context.MessageName,
-                string.IsNullOrEmpty(context.SecondaryEntityName)
-                    ? string.Empty
-                    : string.Format("/{0}", context.SecondaryEntityName)
-                );
+            var mode = ((ExecutionMode)context.Mode);
+            var stage = (PluginStage)context.Stage;
+            var primaryEntityName = string.IsNullOrEmpty(context.PrimaryEntityName) ? "any entity" : context.PrimaryEntityName;
+            var primaryEntityId = (context.PrimaryEntityId == null || context.PrimaryEntityId == Guid.Empty) ? string.Empty : $"({context.PrimaryEntityId})";
+            var messageName = context.MessageName;
+
+            return $"{mode} {stage} of {primaryEntityName}{primaryEntityId}.{messageName}";
         }
     }
 }
