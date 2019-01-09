@@ -3,9 +3,11 @@
 namespace Crm.CommunitySupport {
     class Metrics {
         public static TimeSpan TimeAction(Action action) {
-            DateTime start = DateTime.UtcNow;
+            var watch = new System.Diagnostics.Stopwatch();
+            watch.Start();
             action();
-            return DateTime.UtcNow.Subtract(start);
+            watch.Stop();
+            return watch.Elapsed;
         }
     }
 }
