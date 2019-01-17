@@ -28,7 +28,7 @@
         public override void ExecutePlugin(PluginExecutionContext _)
         {
             // Input
-            var userView = _.Retrieve(_.PrimaryEntityName, _.PrimaryEntityId,);
+            var userView = _.Retrieve(_.PrimaryEntityName, _.PrimaryEntityId);
             var systemView = ConvertToSystemView(userView);
 
             // Output
