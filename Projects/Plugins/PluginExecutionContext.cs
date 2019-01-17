@@ -311,9 +311,9 @@ namespace Crm.CommunitySupport.Plugins
         {
             InputParameters.TryGetValue(PARAM_TARGET, out var target);
 
-            if (target is Entity)
+            if (target is Entity targetEntity)
             {
-                target = ((Entity)target).ToEntityReference();
+                return targetEntity.ToEntityReference();
             }
 
             return target as EntityReference;

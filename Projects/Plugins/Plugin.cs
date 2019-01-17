@@ -130,19 +130,6 @@ namespace Crm.CommunitySupport.Plugins
             }
         }
 
-        private string _pluginTypeName;
-
-        private string PluginTypeName
-        {
-            // implemented as a lazy string instead of readonly string to eliminate the need for derived classes to call the base constructor
-            get
-            {
-                if (_pluginTypeName == null)
-                {
-                    _pluginTypeName = GetType().FullName;
-                }
-                return _pluginTypeName;
-            }
-        }
+        private string PluginTypeName => GetType().FullName;
     }
 }
