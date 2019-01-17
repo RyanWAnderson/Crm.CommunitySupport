@@ -1,10 +1,10 @@
-﻿using Microsoft.Xrm.Sdk;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Crm.CommunitySupport.Extensions
+﻿namespace Crm.CommunitySupport.Extensions
 {
+    using Microsoft.Xrm.Sdk;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public static partial class XrmExtensions
     {
         /// <summary>

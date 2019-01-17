@@ -1,10 +1,10 @@
-﻿using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Query;
-using System;
-using System.Linq;
-
-namespace Crm.CommunitySupport.Extensions
+﻿namespace Crm.CommunitySupport.Extensions
 {
+    using Microsoft.Xrm.Sdk;
+    using Microsoft.Xrm.Sdk.Query;
+    using System;
+    using System.Linq;
+
     public static class IOrganizationServiceExtensions
     {
         /// <summary>

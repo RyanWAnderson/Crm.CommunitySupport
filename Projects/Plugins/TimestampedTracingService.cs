@@ -13,11 +13,11 @@
 //  PARTICULAR PURPOSE.
 // =====================================================================
 
-using Microsoft.Xrm.Sdk;
-using System;
-
 namespace Microsoft.Crm.Sdk.Samples
 {
+    using Microsoft.Xrm.Sdk;
+    using System;
+
     /// <summary>
     /// An implementation of ITracingService that prefixes all traced messages with a timestamp and time deltas for diagnoising plugin performance issues.
     /// Out-of-box tracing service usage:
@@ -63,7 +63,7 @@ namespace Microsoft.Crm.Sdk.Samples
 
             // The duration since the operation started.
             var relativeMilliseconds = utcNow.Subtract(_firstTraceTime).TotalMilliseconds;
-            
+
             // The duration since the last trace.
             var deltaMilliseconds = utcNow.Subtract(_previousTraceTime).TotalMilliseconds;
 

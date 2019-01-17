@@ -1,14 +1,14 @@
-﻿using Crm.CommunitySupport.Extensions;
-using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Crm.Sdk.Samples;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
-using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Query;
-using System;
-
-namespace Crm.CommunitySupport.Plugins
+﻿namespace Crm.CommunitySupport.Plugins
 {
+    using Crm.CommunitySupport.Extensions;
+    using Microsoft.Crm.Sdk.Messages;
+    using Microsoft.Crm.Sdk.Samples;
+    using Microsoft.Xrm.Sdk;
+    using Microsoft.Xrm.Sdk.Client;
+    using Microsoft.Xrm.Sdk.Messages;
+    using Microsoft.Xrm.Sdk.Query;
+    using System;
+
     public enum PluginStage
     {
         PreValidation = 10,

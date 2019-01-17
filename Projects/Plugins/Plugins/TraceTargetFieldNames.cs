@@ -1,9 +1,9 @@
-﻿using Crm.CommunitySupport.Extensions;
-using Microsoft.Xrm.Sdk;
-using System.Linq;
-
-namespace Crm.CommunitySupport.Plugins
+﻿namespace Crm.CommunitySupport.Plugins
 {
+    using Crm.CommunitySupport.Extensions;
+    using Microsoft.Xrm.Sdk;
+    using System.Linq;
+
     /// <summary>
     /// A plugin that does nothing in the plugin's body.
     /// </summary>

@@ -1,10 +1,9 @@
-﻿using Crm.CommunitySupport.Extensions;
-using Microsoft.Xrm.Sdk;
-using System;
-using System.Text;
-
-namespace Crm.CommunitySupport.Plugins
+﻿namespace Crm.CommunitySupport.Plugins
 {
+    using Crm.CommunitySupport.Extensions;
+    using Microsoft.Xrm.Sdk;
+    using System;
+    using System.Text;
 
     public abstract partial class Plugin : IPlugin
     {

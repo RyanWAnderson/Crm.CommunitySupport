@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Crm.CommunitySupport
+﻿namespace Crm.CommunitySupport
 {
+    using System;
+
     internal class Metrics
     {
         public static TimeSpan TimeAction(Action action)
