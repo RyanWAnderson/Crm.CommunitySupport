@@ -30,7 +30,7 @@ namespace Crm.CommunitySupport.Plugins
             }
             catch (Exception ex)
             {
-                _.Trace("!! Exception caught, plugin aborting.");
+                _.Trace($"!! {ex.GetType().FullName} caught, plugin aborting.");
 
                 throw new InvalidPluginExecutionException(
                     $"Plugin '{PluginTypeName}' failed to execute, returning the error: {ex.Message}",
