@@ -9,6 +9,8 @@
     /// </summary>
     public class SaveAsSystemView : Plugin
     {
+        private const string ENTITY_SYSTEM_VIEW = "savedquery";
+
         private static readonly Dictionary<string, string> AttributeMap = new Dictionary<string, string>
         {
             { "advancedgroupby", "advancedgroupby" },
@@ -22,22 +24,22 @@
             { "offlinesqlquery", "offlinesqlquery" },
             { "querytype", "querytype" },
             { "returnedtypecode", "returnedtypecode" },
-            { "userqueryid", "savedqueryid" },
         };
 
         public override void ExecutePlugin(PluginExecutionContext _)
         {
             // Input
-            var userView = _.Retrieve(_.PrimaryEntityName, _.PrimaryEntityId);
+            var userView = _.Retrieve(_.GetTargetReference());
             var systemView = ConvertToSystemView(userView);
+            systemView.Id = _.Create(systemView);
 
             // Output
-            _.OutputParameters["savedqueryid"] = _.Create(systemView);
+            _.OutputParameters[ENTITY_SYSTEM_VIEW] = systemView.ToEntityReference();
         }
 
         private static Entity ConvertToSystemView(Entity userView)
         {
-            var systemView = userView.MapAttributes(AttributeMap, "savedquery");
+            var systemView = userView.MapAttributes(AttributeMap, ENTITY_SYSTEM_VIEW);
 
             systemView["canbedeleted"] = true;
             systemView["iscustomizable"] = true;

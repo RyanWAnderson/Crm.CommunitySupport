@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Text.RegularExpressions;
-
-namespace Crm.CommunitySupport.Plugins
+﻿namespace Crm.CommunitySupport.Plugins
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Text.RegularExpressions;
+
     /// <summary>
     /// Class to add Dictionary (Key:Value) parsing to plugin configuration
     /// </summary>
@@ -23,7 +22,7 @@ namespace Crm.CommunitySupport.Plugins
 
         private static IReadOnlyDictionary<string, string> parseStringIntoDict(string s)
         {
-            var dict = new StringDictionary();
+            var dict = new Dictionary<string, string>();
 
             try /*weakly*/
             {
@@ -43,7 +42,7 @@ namespace Crm.CommunitySupport.Plugins
                 // swallow ex
             }
 
-            return (IReadOnlyDictionary<string, string>)dict;
+            return dict;
         }
 
         public readonly string Unsecure;
