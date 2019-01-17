@@ -54,6 +54,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Extensions\IOrganizationServiceExtensions.cs" />
     <Compile Include="Extensions\XrmExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Plugin.cs" />

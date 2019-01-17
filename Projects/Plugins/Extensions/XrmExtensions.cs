@@ -25,25 +25,25 @@ namespace Crm.CommunitySupport.Extensions
         /// <summary>
         /// Make a comparable, but not equatable copy of a TDataCollection.
         /// </summary>
-        public static TDataCollection Copy<TDataCollection>(this TDataCollection sourceDataCollection) where TDataCollection : DataCollection<string, object>, new()
+        public static TDataCollection Copy<TDataCollection>(this TDataCollection source, TDataCollection target = null) where TDataCollection : DataCollection<string, object>, new()
         {
-            var copy = new TDataCollection();
+            var copy = target ?? new TDataCollection();
 
             // Copy any items in the collection
-            foreach (var attribute in sourceDataCollection)
+            foreach (var attribute in source)
             {
                 var attributeValue = attribute.Value;
 
                 switch (attributeValue)
                 {
-                    case OptionSetValue _:
-                        attributeValue = ((OptionSetValue)attributeValue).Copy();
+                    case OptionSetValue optionSetValue:
+                        attributeValue = optionSetValue.Copy();
                         break;
-                    case Money _:
-                        attributeValue = ((Money)attributeValue).Copy();
+                    case Money money:
+                        attributeValue = money.Copy();
                         break;
-                    case EntityReference _:
-                        attributeValue = ((EntityReference)attributeValue).Copy();
+                    case EntityReference entityReference:
+                        attributeValue = entityReference.Copy();
                         break;
                 }
 
@@ -99,25 +99,7 @@ namespace Crm.CommunitySupport.Extensions
                     entity.ToEntityReference().ToTraceable()));
             }
 
-            foreach (var attribute in delta.Attributes)
-            {
-                var attribueValue = attribute.Value;
-
-                switch (attribueValue)
-                {
-                    case OptionSetValue _:
-                        attribueValue = ((OptionSetValue)attribueValue).Copy();
-                        break;
-                    case Money _:
-                        attribueValue = ((Money)attribueValue).Copy();
-                        break;
-                    case EntityReference _:
-                        attribueValue = ((EntityReference)attribueValue).Copy();
-                        break;
-                }
-
-                entity.Attributes[attribute.Key] = attribueValue;
-            }
+            Copy(delta.Attributes, entity.Attributes);
         }
 
         /// <summary>
@@ -209,6 +191,28 @@ namespace Crm.CommunitySupport.Extensions
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Copies the given attributes to a new entity.
+        /// </summary>
+        /// <param name="source">The entity from which to copy values.</param>
+        /// <param name="attributeMap">A dictionary of {source, target} attribute names.</param>
+        /// <param name="targetEntityName">Optional. Logical name of the entity. Defaults to the source entity's name.</param>
+        /// <returns></returns>
+        public static Entity MapAttributes(this Entity source, IDictionary<string, string> attributeMap, string targetEntityName = null)
+        {
+            var target = new Entity(targetEntityName ?? source.LogicalName);
+
+            foreach (var attribute in attributeMap)
+            {
+                if (source.Attributes.TryGetValue(attribute.Key, out var attributeValue))
+                {
+                    target[attribute.Value] = attributeValue;
+                }
+            }
+
+            return target;
         }
     }
 }
