@@ -64,6 +64,8 @@
     <Compile Include="PluginExecutionContext.cs" />
     <Compile Include="Extensions\PluginExtensions.cs" />
     <Compile Include="Plugins\OptimizedUpdate.cs" />
+    <Compile Include="Plugins\SaveAsSystemView.cs" />
+    <Compile Include="Plugins\SaveAsUserView.cs" />
     <Compile Include="Plugins\TraceTargetFieldNames.cs" />
     <Compile Include="Plugins\TraceTarget.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
